@@ -69,7 +69,7 @@ Exact balance repair is applied after clipping. With $d=\mathbf{1}^{\top}\mathbf
 
 $$P_i\leftarrow
 \begin{cases}
-P_i-\dfrac{P_i-l_i}{\sum_j(P_j-l_j)}d, & d>0,\\[8pt]
+P_i-\dfrac{P_i-l_i}{\sum_j(P_j-l_j)}d, & d>0,\\
 P_i+\dfrac{u_i-P_i}{\sum_j(u_j-P_j)}|d|, & d<0.
 \end{cases}$$
 
@@ -101,8 +101,8 @@ The trial step selects among three cases:
 
 $$\mathbf{p}_k=
 \begin{cases}
-\mathbf{p}_N, & \|\mathbf{p}_N\|\le\Delta_k,\\[4pt]
-\Delta_k\dfrac{-\mathbf{g}_s}{\|\mathbf{g}_s\|}, & \|\mathbf{p}_C\|\ge\Delta_k,\\[8pt]
+\mathbf{p}_N, & \|\mathbf{p}_N\|\le\Delta_k,\\
+\Delta_k\dfrac{-\mathbf{g}_s}{\|\mathbf{g}_s\|}, & \|\mathbf{p}_C\|\ge\Delta_k,\\
 \mathbf{p}_C+\tau^{*}(\mathbf{p}_N-\mathbf{p}_C), & \text{otherwise},
 \end{cases}$$
 

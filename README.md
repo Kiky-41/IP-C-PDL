@@ -12,6 +12,100 @@ Chaos-embedded trust-region interior-point framework (Powell's Dog-Leg) for cons
 
 Constrained economic dispatch (ED)—the classical, single-bus, active-poweronly dispatch problem for thermal generation, not an optimal power flow or unit-commitment problem—in large-scale interconnected power systems such as the Java–Madura–Bali (Jamali) network is non-convex and ramprate-coupled: deterministic solvers stall at local optima, while stochastic solvers incur unacceptable run-to-run variance. This paper proposes IP-C-PDL (Interior-Point Chaotic Powell’s Dog-Leg), which, within a single interior-point iteration, couples a Powell’s Dog-Leg trust-region step (Cauchy/quasi-Newton selection via accumulated SR1/BFGS curvature) with a stall-adaptive tentmap chaotic perturbation for ergodic basin escape; a multi-start pool, elite archive, and periodic SQP refinement complete the framework using only three user-specified parameters. On twelve CEC benchmark functions (30 runs, 12 methods), IP-C-PDL ranks 1 in 1 of 12 and top-3 in 7 of 12. On six ED scenarios spanning 5-, 16-, and 42-unit systems (50 runs, 10 methods, single-period and 24-hour horizons), it ranks 1 in 4 of 6 (mean rank 2.17/10) with zero constraint violations, yielding USD 22,239.29/day (σ = USD 0.41) on the 42-unit 24-hour case—0.16% better than the second-ranked comparator (t = −48.26, p < 10−42) and 4.67% better than the worst (t = −180.85, p < 10−70)—confirmed by Friedman, ANOVA, and Wilcoxon–Holm–Bonferroni tests. A five-factor sensitivity analysis identifies multi-start pool size as the dominant factor—with a cliff-edge improvement at just two starts—while the framework is insensitive to the remaining four hyperparameters and stabilises by 400 iterations. A policy sensitivity analysis further links dispatch quality to fiscal savings, Biaya Pokok Penyediaan (BPP) subsidy reduction, and avoided carbon emissions in the Indonesian power sector.
 
+
+## Proposed method
+
+IP-C-PDL is a chaos-embedded trust-region interior-point method. A multi-start pool (lambda iteration, interior point, SQP and repaired random points) supplies the starting dispatch; each start is refined by an interior-point penalty loop whose step comes from Powell's dog-leg (PDL), built on an SR1/BFGS Hessian. A tent-map perturbation, whose probability grows with the stall counter, escapes flat or misleading basins. The 24-hour problem is solved as a sequence of ramp-coupled single-period problems.
+
+### Dispatch model
+
+$$\min_{\mathbf{P}}F(\mathbf{P})=\sum_{i=1}^{n}\left(a_iP_i^2+b_iP_i+c_i\right)$$
+
+$$\text{s.t.}\quad\mathbf{1}^{\top}\mathbf{P}=P_D,\qquad \mathbf{P}^{\min}\le\mathbf{P}\le\mathbf{P}^{\max}$$
+
+Multi-period form and ramp-coupled bounds:
+
+$$\min_{\{P_{i,t}\}}\sum_{t=1}^{T}\sum_{i=1}^{n}f_i(P_{i,t}),\qquad -RD_i\le P_{i,t}-P_{i,t-1}\le RU_i$$
+
+$$\tilde P_i^{\min}(t)=\max\!\left(P_i^{\min},P_{i,t-1}-RD_i\right),\qquad \tilde P_i^{\max}(t)=\min\!\left(P_i^{\max},P_{i,t-1}+RU_i\right)$$
+
+### Penalty subproblem
+
+$$\Phi(\mathbf{P};\mu)=F(\mathbf{P})+\mu\left(\sum_{i=1}^{n}P_i-P_D\right)^2$$
+
+$$\mu_k=\min\!\left(\mu_0\max\!\left(1,\frac{10^3}{\max(\varepsilon_k,10^{-3})}\right),10^{10}\right),\qquad \mu_0=10^6,\quad \varepsilon_k=\left|\mathbf{1}^{\top}\mathbf{P}_k-P_D\right|$$
+
+Exact balance repair, with $d=\mathbf{1}^{\top}\mathbf{P}-P_D$:
+
+$$P_i\leftarrow
+\begin{cases}
+P_i-\dfrac{P_i-l_i}{\sum_j(P_j-l_j)}d, & d>0\\[8pt]
+P_i+\dfrac{u_i-P_i}{\sum_j(u_j-P_j)}|d|, & d<0
+\end{cases}$$
+
+iterated up to 200 times until $|d|<10^{-4}$ MW, then re-clipped.
+
+### Hessian approximation
+
+With $\mathbf{s}_k=\mathbf{x}_{k+1}-\mathbf{x}_k$, $\mathbf{y}_k=\nabla\Phi_{k+1}-\nabla\Phi_k$, use BFGS when $\mathbf{s}_k^{\top}\mathbf{y}_k>10^{-10}$:
+
+$$\mathbf{H}_{k+1}=\left(\mathbf{I}-\rho_k\mathbf{s}_k\mathbf{y}_k^{\top}\right)\mathbf{H}_k\left(\mathbf{I}-\rho_k\mathbf{y}_k\mathbf{s}_k^{\top}\right)+\rho_k\mathbf{s}_k\mathbf{s}_k^{\top},\qquad \rho_k=\frac{1}{\mathbf{s}_k^{\top}\mathbf{y}_k}$$
+
+otherwise SR1:
+
+$$\mathbf{H}_{k+1}=\mathbf{H}_k+\frac{\mathbf{r}_k\mathbf{r}_k^{\top}}{\mathbf{r}_k^{\top}\mathbf{y}_k},\qquad \mathbf{r}_k=\mathbf{s}_k-\mathbf{H}_k\mathbf{y}_k$$
+
+An update is rejected, and $\mathbf{H}_{k+1}\leftarrow\mathbf{I}$, when $\operatorname{rcond}(\mathbf{H}_{k+1})\le10^{-14}$.
+
+### Powell's dog-leg step
+
+Scaled gradient:
+
+$$\boldsymbol{\sigma}=\max(\mathbf{u}-\mathbf{l},\mathbf{1}),\qquad \mathbf{g}_s=\frac{\mathbf{g}_k/\boldsymbol{\sigma}}{\max\left(\|\mathbf{g}_k\|/\|\boldsymbol{\sigma}\|,10^{-12}\right)}$$
+
+Newton and Cauchy steps:
+
+$$\mathbf{p}_N=-\mathbf{H}_k\mathbf{g}_s,\qquad \mathbf{p}_C=-\tau_c\frac{\Delta_k}{\|\mathbf{g}_s\|}\mathbf{g}_s,\qquad \tau_c=\min\!\left(\frac{\|\mathbf{g}_s\|^3}{\Delta_k\,\mathbf{g}_s^{\top}\mathbf{H}_k\mathbf{g}_s+10^{-12}},1\right)$$
+
+$$\mathbf{p}_k=
+\begin{cases}
+\mathbf{p}_N, & \|\mathbf{p}_N\|\le\Delta_k\\[4pt]
+\Delta_k\dfrac{-\mathbf{g}_s}{\|\mathbf{g}_s\|}, & \|\mathbf{p}_C\|\ge\Delta_k\\[8pt]
+\mathbf{p}_C+\tau^*(\mathbf{p}_N-\mathbf{p}_C), & \text{otherwise}
+\end{cases}$$
+
+where $\tau^*$ is the positive root of
+
+$$\underbrace{\|\mathbf{p}_N-\mathbf{p}_C\|^2}_{a_q}\tau^2+\underbrace{2\mathbf{p}_C^{\top}(\mathbf{p}_N-\mathbf{p}_C)}_{b_q}\tau+\underbrace{\|\mathbf{p}_C\|^2-\Delta_k^2}_{c_q}=0$$
+
+Armijo step ($10^{-4}$ sufficient decrease), trust-region ratio and radius update:
+
+$$\rho_k=\frac{\Phi(\mathbf{x}_k)-\Phi(\mathbf{x}_k+\alpha_k\mathbf{p}_k)}{-\mathbf{g}_s^{\top}(\alpha_k\mathbf{p}_k)},\qquad
+\Delta_{k+1}=
+\begin{cases}
+\max(\Delta_k/2,\ 10^{-8}), & \rho_k<0.25\\
+\min(2\Delta_k,\ 500), & \rho_k>0.75\\
+\Delta_k, & \text{otherwise}
+\end{cases}$$
+
+### Tent-map perturbation
+
+$$s_i^{(k+1)}=
+\begin{cases}
+2s_i^{(k)}, & s_i^{(k)}<0.5\\
+2\left(1-s_i^{(k)}\right), & s_i^{(k)}\ge0.5
+\end{cases}
+\qquad
+c_p(k)=\min\left(c_{p0}+0.004\,\text{stall},\ 0.55\right)$$
+
+$$\Delta_c=\Delta_k\min\!\left(0.25+\frac{\text{stall}}{120},0.9\right),\qquad \mathbf{x}_k\leftarrow\mathbf{x}_k+\Delta_c\frac{\mathbf{s}^{(k)}-0.5}{\left\|\mathbf{s}^{(k)}-0.5\right\|}\ \text{with probability }c_p(k)$$
+
+An elite archive of six solutions is kept; every $e_i=\max(20-\lfloor\text{stall}/10\rfloor,10)$ stalled iterations an SQP refinement is applied, and every 50 stalls the run restarts from the best elite member plus Gaussian noise.
+
+### Reported result
+
+42-unit single-period: USD 22,239.29/day; the same framework covers 5-, 16- and 42-unit single-period and 24-hour cases, plus CEC2020 benchmarks.
+
 ## Contents
 
 ```

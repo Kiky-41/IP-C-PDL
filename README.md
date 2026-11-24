@@ -300,6 +300,31 @@ IP-C-PDL averages 180,184,024 IDR, 3,326 IDR ahead of L-BFGS-B and 40,078 IDR ah
 
 On the 42-unit daily case the gap grows to 581,438 IDR, 0.16% under SLSQP and TNC. This is the scenario the paper uses to claim the method, since it combines the largest unit count with the ramp coupling over 24 hours.
 
+### Statistical tests, 50 runs per method per scenario
+
+| Scenario | IP-C-PDL rank | Best method | Friedman chi2 | Friedman p | ANOVA F | ANOVA p | Methods flagged vs IP-C-PDL (Holm) |
+|---|---|---|---|---|---|---|---|
+| 5-Unit | 6 | SLSQP | 313.72 | 3.20e-62 | 6.22 | 2.52e-08 | 7 |
+| 16-Unit | 3 | SLSQP | 396.11 | 9.26e-80 | 121.31 | 1.13e-118 | 9 |
+| 42-Unit | 1 | IP-C-PDL | 394.33 | 2.22e-79 | 613.44 | 2.75e-260 | 9 |
+| 5-Unit 24h | 1 | IP-C-PDL | 417.94 | 2.03e-84 | 865.94 | 2.26e-294 | 9 |
+| 16-Unit 24h | 1 | IP-C-PDL | 428.18 | 1.32e-86 | 3,489.03 | 0.0 | 8 |
+| 42-Unit 24h | 1 | IP-C-PDL | 448.35 | 6.44e-91 | 11,839.86 | 0.0 | 9 |
+
+Friedman and ANOVA reject equal medians and equal means in all six scenarios, with Friedman statistics from 314 to 448 and p below 1e-60. After Holm correction between 7 and 9 of the nine baselines are flagged as different from IP-C-PDL, so the spread between methods is far outside run noise. IP-C-PDL ranks first on the 42-unit case and on all three 24-hour cases, third on 16-unit and sixth on 5-unit, where every method ties.
+
+### Multi-start composition, 42-unit, 20 runs per pool
+
+| Seed pool | Mean cost (IDR) | Std | Best | Runs |
+|---|---|---|---|---|
+| Lambda-iter only | 15,142,512.39 | 87,864.86 | 15,106,586.79 | 20 |
+| Interior-point only | 15,027,878.54 | 0.00 | 15,027,878.54 | 20 |
+| SQP only | 15,029,821.26 | 8,688.14 | 15,027,878.54 | 20 |
+| Random only | 15,066,400.86 | 136,991.47 | 15,027,878.54 | 20 |
+| Combined pool (default) | 15,027,878.55 | 0.02 | 15,027,878.54 | 20 |
+
+Interior-point alone and the combined pool both reach 15,027,880 IDR with essentially zero spread, while lambda-iteration alone stops at 15,142,510 IDR and random starts at 15,066,400 IDR. The seed pool matters less than including an interior-point start: every pool that contains one ends at the same cost.
+
 ### Result workbooks
 
 | File | Content |

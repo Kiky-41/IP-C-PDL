@@ -25,11 +25,11 @@ $$\text{s.t.}\quad\mathbf{1}^{\top}\mathbf{P}=P_D,\qquad \mathbf{P}^{\min}\le\ma
 
 For 24 hours the objective is summed over periods and the ramp limits couple consecutive hours:
 
-$$\min_{\{P_{i,t}\}}\sum_{t=1}^{T}\sum_{i=1}^{n}f_i(P_{i,t}),\qquad -RD_i\le P_{i,t}-P_{i,t-1}\le RU_i.$$
+$$\min_{\lbraceP_{i,t}\rbrace}\sum_{t=1}^{T}\sum_{i=1}^{n}f_i(P_{i,t}),\qquad -RD_i\le P_{i,t}-P_{i,t-1}\le RU_i.$$
 
 The ramp limits are folded into effective bounds:
 
-$$\tilde P_i^{\min}(t)=\max\!\left(P_i^{\min},P_{i,t-1}-RD_i\right),\qquad \tilde P_i^{\max}(t)=\min\!\left(P_i^{\max},P_{i,t-1}+RU_i\right).$$
+$$\tilde P_i^{\min}(t)=\max\left(P_i^{\min},P_{i,t-1}-RD_i\right),\qquad \tilde P_i^{\max}(t)=\min\left(P_i^{\max},P_{i,t-1}+RU_i\right).$$
 
 ### Notation
 
@@ -61,7 +61,7 @@ $$\Phi(\mathbf{P};\mu)=F(\mathbf{P})+\mu\left(\sum_{i=1}^{n}P_i-P_D\right)^2.$$
 
 The penalty is tightened as the balance error shrinks:
 
-$$\mu_k=\min\!\left(\mu_0\max\!\left(1,\frac{10^3}{\max(\varepsilon_k,10^{-3})}\right),10^{10}\right),\qquad \mu_0=10^6,\quad \varepsilon_k=\left|\mathbf{1}^{\top}\mathbf{P}_k-P_D\right|.$$
+$$\mu_k=\min\left(\mu_0\max\left(1,\frac{10^3}{\max(\varepsilon_k,10^{-3})}\right),10^{10}\right),\qquad \mu_0=10^6,\quad \varepsilon_k=\left|\mathbf{1}^{\top}\mathbf{P}_k-P_D\right|.$$
 
 A small balance error therefore receives a large penalty, while the cap at $10^{10}$ prevents the Hessian from becoming numerically singular.
 
@@ -91,24 +91,24 @@ An update is rejected, and $\mathbf{H}_{k+1}\leftarrow\mathbf{I}$, when $\operat
 
 The gradient is scaled so units with different ranges contribute comparably:
 
-$$\boldsymbol{\sigma}=\max(\mathbf{u}-\mathbf{l},\mathbf{1}),\qquad \mathbf{g}_s=\frac{\mathbf{g}_k/\boldsymbol{\sigma}}{\max\left(\|\mathbf{g}_k\|/\|\boldsymbol{\sigma}\|,10^{-12}\right)}.$$
+$$\boldsymbol{\sigma}=\max(\mathbf{u}-\mathbf{l},\mathbf{1}),\qquad \mathbf{g}_s=\frac{\mathbf{g}_k/\boldsymbol{\sigma}}{\max\left(\Vert\mathbf{g}_k\Vert/\Vert\boldsymbol{\sigma}\Vert,10^{-12}\right)}.$$
 
 The quasi-Newton and Cauchy steps are
 
-$$\mathbf{p}_N=-\mathbf{H}_k\mathbf{g}_s,\qquad \mathbf{p}_C=-\tau_c\frac{\Delta_k}{\|\mathbf{g}_s\|}\mathbf{g}_s,\qquad \tau_c=\min\!\left(\frac{\|\mathbf{g}_s\|^3}{\Delta_k\,\mathbf{g}_s^{\top}\mathbf{H}_k\mathbf{g}_s+10^{-12}},1\right).$$
+$$\mathbf{p}_N=-\mathbf{H}_k\mathbf{g}_s,\qquad \mathbf{p}_C=-\tau_c\frac{\Delta_k}{\Vert\mathbf{g}_s\Vert}\mathbf{g}_s,\qquad \tau_c=\min\left(\frac{\Vert\mathbf{g}_s\Vert^3}{\Delta_k~\mathbf{g}_s^{\top}\mathbf{H}_k\mathbf{g}_s+10^{-12}},1\right).$$
 
 The trial step selects among three cases:
 
 $$\mathbf{p}_k=
 \begin{cases}
-\mathbf{p}_N, & \|\mathbf{p}_N\|\le\Delta_k,\\
-\Delta_k\dfrac{-\mathbf{g}_s}{\|\mathbf{g}_s\|}, & \|\mathbf{p}_C\|\ge\Delta_k,\\
+\mathbf{p}_N, & \Vert\mathbf{p}_N\Vert\le\Delta_k,\\
+\Delta_k\dfrac{-\mathbf{g}_s}{\Vert\mathbf{g}_s\Vert}, & \Vert\mathbf{p}_C\Vert\ge\Delta_k,\\
 \mathbf{p}_C+\tau^{*}(\mathbf{p}_N-\mathbf{p}_C), & \text{otherwise},
 \end{cases}$$
 
 where $\tau^{*}$ is the positive root of
 
-$$\underbrace{\|\mathbf{p}_N-\mathbf{p}_C\|^2}_{a_q}\tau^2+\underbrace{2\mathbf{p}_C^{\top}(\mathbf{p}_N-\mathbf{p}_C)}_{b_q}\tau+\underbrace{\|\mathbf{p}_C\|^2-\Delta_k^2}_{c_q}=0.$$
+$$\underbrace{\Vert\mathbf{p}_N-\mathbf{p}_C\Vert^2}_{a_q}\tau^2+\underbrace{2\mathbf{p}_C^{\top}(\mathbf{p}_N-\mathbf{p}_C)}_{b_q}\tau+\underbrace{\Vert\mathbf{p}_C\Vert^2-\Delta_k^2}_{c_q}=0.$$
 
 The first case takes the full Newton step inside the trust region; the second follows the steepest-descent direction to the boundary when even the Cauchy step is too long; the third interpolates along the dog-leg segment to the trust-region boundary.
 
@@ -121,8 +121,8 @@ The trust-region ratio and radius update are
 $$\rho_k=\frac{\Phi(\mathbf{x}_k)-\Phi(\mathbf{x}_k+\alpha_k\mathbf{p}_k)}{-\mathbf{g}_s^{\top}(\alpha_k\mathbf{p}_k)},\qquad
 \Delta_{k+1}=
 \begin{cases}
-\max(\Delta_k/2,\ 10^{-8}), & \rho_k<0.25,\\
-\min(2\Delta_k,\ 500), & \rho_k>0.75,\\
+\max(\Delta_k/2,~10^{-8}), & \rho_k<0.25,\\
+\min(2\Delta_k,~500), & \rho_k>0.75,\\
 \Delta_k, & \text{otherwise}.
 \end{cases}$$
 
@@ -136,9 +136,9 @@ $$s_i^{(k+1)}=
 2\left(1-s_i^{(k)}\right), & s_i^{(k)}\ge0.5,
 \end{cases}
 \qquad
-c_p(k)=\min\left(c_{p0}+0.004\,\mathrm{stall},\ 0.55\right).$$
+c_p(k)=\min\left(c_{p0}+0.004~\mathrm{stall},~0.55\right).$$
 
-$$\Delta_c=\Delta_k\min\!\left(0.25+\frac{\mathrm{stall}}{120},0.9\right),\qquad \mathbf{x}_k\leftarrow\mathbf{x}_k+\Delta_c\frac{\mathbf{s}^{(k)}-0.5}{\left\|\mathbf{s}^{(k)}-0.5\right\|}\ \text{with probability }c_p(k).$$
+$$\Delta_c=\Delta_k\min\left(0.25+\frac{\mathrm{stall}}{120},0.9\right),\qquad \mathbf{x}_k\leftarrow\mathbf{x}_k+\Delta_c\frac{\mathbf{s}^{(k)}-0.5}{\left\Vert\mathbf{s}^{(k)}-0.5\right\Vert}~\text{with probability }c_p(k).$$
 
 The tent map is deterministic and aperiodic, so the perturbation is reproducible. Its probability and magnitude rise with the stall counter, which lets the search leave a basin only after the deterministic step has stopped improving.
 

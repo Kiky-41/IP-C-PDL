@@ -213,6 +213,8 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | DE | 50 | 1,733,364.35 | 1,733,364.35 | 1,733,364.35 | 0.00 |
 | IP-C-PDL | 50 | 1,733,364.35 | 1,733,364.35 | 1,733,364.35 | 0.00 |
 
+All ten methods land on 1,733,364 IDR with spreads of a few IDR, so the five-unit case separates nothing on cost. Ranking is decided by run time and consistency, and IP-C-PDL sits sixth here.
+
 ### 16-Unit case, 50 runs
 
 | Method | Runs | Mean cost (IDR) | Best | Worst | Std |
@@ -227,6 +229,8 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | PSO | 50 | 7,330,112.51 | 7,275,750.61 | 7,441,832.11 | 41,458.67 |
 | DE | 50 | 7,296,347.71 | 7,272,955.48 | 7,350,669.94 | 16,372.84 |
 | IP-C-PDL | 50 | 7,266,972.86 | 7,266,972.86 | 7,266,972.86 | 0.00 |
+
+IP-C-PDL ties the best mean at 7,266,973 IDR with SLSQP and TNC and leads L-BFGS-B by 24 IDR. A gap this small is solver tolerance, not algorithm quality.
 
 ### 42-Unit case, 50 runs
 
@@ -243,6 +247,8 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | DE | 50 | 15,686,226.01 | 15,405,843.91 | 15,824,873.60 | 95,795.03 |
 | IP-C-PDL | 50 | 15,027,878.55 | 15,027,878.54 | 15,027,878.60 | 0.02 |
 
+On the 42-unit case IP-C-PDL is lowest at 15,027,879 IDR, 0.17% under SLSQP and TNC and 0.63% under L-BFGS-B. The advantage comes from projecting the step onto the coupling constraints, which matters once the unit count grows.
+
 ### 5-Unit 24h case, 50 runs
 
 | Method | Runs | Mean cost (IDR) | Best | Worst | Std |
@@ -257,6 +263,8 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | PSO | 50 | 42,761,604.51 | 42,572,065.52 | 42,987,097.51 | 86,834.79 |
 | DE | 50 | 42,306,845.66 | 42,297,048.11 | 42,336,227.28 | 6,197.99 |
 | IP-C-PDL | 50 | 42,286,218.45 | 42,285,718.50 | 42,291,967.84 | 1,712.62 |
+
+Over 24 hours IP-C-PDL averages 42,286,218 IDR per day against 42,290,013 IDR for TNC, a 0.01% margin. The daily five-unit problem is easy and every deterministic solver ends within a few thousand IDR.
 
 ### 16-Unit 24h case, 50 runs
 
@@ -273,6 +281,8 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | DE | 50 | 182,612,292.47 | 182,243,978.32 | 182,907,063.02 | 140,723.67 |
 | IP-C-PDL | 50 | 180,184,023.83 | 180,152,758.80 | 180,243,875.08 | 28,002.10 |
 
+IP-C-PDL averages 180,184,024 IDR, 3,326 IDR ahead of L-BFGS-B and 40,078 IDR ahead of SLSQP. The margin is stable across the 50 starts and the standard deviation is the smallest in the table apart from L-BFGS-B.
+
 ### 42-Unit 24h case, 50 runs
 
 | Method | Runs | Mean cost (IDR) | Best | Worst | Std |
@@ -288,6 +298,8 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | DE | 50 | 371,845,272.62 | 370,859,359.47 | 372,642,311.56 | 374,202.81 |
 | IP-C-PDL | 50 | 358,052,521.64 | 358,041,500.53 | 358,075,181.43 | 6,558.02 |
 
+On the 42-unit daily case the gap grows to 581,438 IDR, 0.16% under SLSQP and TNC. This is the scenario the paper uses to claim the method, since it combines the largest unit count with the ramp coupling over 24 hours.
+
 ### Result workbooks
 
 | File | Content |
@@ -295,6 +307,8 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | [`results/CEC_Results_v9.xlsx`](results/CEC_Results_v9.xlsx) | raw output |
 | [`results/Constraint_Check_v9.xlsx`](results/Constraint_Check_v9.xlsx) | raw output |
 | [`results/ED_Results_v9.xlsx`](results/ED_Results_v9.xlsx) | raw output |
+
+The workbooks hold the raw solver output behind the tables above: per-unit schedules, per-hour costs, constraint checks and run statistics.
 
 
 ## Requirements

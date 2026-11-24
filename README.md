@@ -103,10 +103,10 @@ $$\mathbf{p}_k=
 \begin{cases}
 \mathbf{p}_N, & \Vert\mathbf{p}_N\Vert\le\Delta_k,\\
 \Delta_k\dfrac{-\mathbf{g}_s}{\Vert\mathbf{g}_s\Vert}, & \Vert\mathbf{p}_C\Vert\ge\Delta_k,\\
-\mathbf{p}_C+\tau^{*}(\mathbf{p}_N-\mathbf{p}_C), & \text{otherwise},
+\mathbf{p}_C+\tau^{\ast}(\mathbf{p}_N-\mathbf{p}_C), & \text{otherwise},
 \end{cases}$$
 
-where $\tau^{*}$ is the positive root of
+where $\tau^{\ast}$ is the positive root of
 
 $$\underbrace{\Vert\mathbf{p}_N-\mathbf{p}_C\Vert^2}_{a_q}\tau^2+\underbrace{2\mathbf{p}_C^{\top}(\mathbf{p}_N-\mathbf{p}_C)}_{b_q}\tau+\underbrace{\Vert\mathbf{p}_C\Vert^2-\Delta_k^2}_{c_q}=0.$$
 

@@ -25,7 +25,7 @@ $$\text{s.t.}\quad\mathbf{1}^{\top}\mathbf{P}=P_D,\qquad \mathbf{P}^{\min}\le\ma
 
 For 24 hours the objective is summed over periods and the ramp limits couple consecutive hours:
 
-$$\min_{\lbraceP_{i,t}\rbrace}\sum_{t=1}^{T}\sum_{i=1}^{n}f_i(P_{i,t}),\qquad -RD_i\le P_{i,t}-P_{i,t-1}\le RU_i.$$
+$$\min_{\lbrace P_{i,t}\rbrace}\sum_{t=1}^{T}\sum_{i=1}^{n}f_i(P_{i,t}),\qquad -RD_i\le P_{i,t}-P_{i,t-1}\le RU_i.$$
 
 The ramp limits are folded into effective bounds:
 
@@ -198,29 +198,16 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 
 ## Results
 
-### Figures
-
-![Fig01_CEC_Conv](figures/Fig01_CEC_Conv.png)
-
-![Fig02_Conv_5Unit](figures/Fig02_Conv_5Unit.png)
-
-![Fig03_Conv_16Unit](figures/Fig03_Conv_16Unit.png)
-
-![Fig04_Conv_42Unit](figures/Fig04_Conv_42Unit.png)
-
-![Fig05_Conv_5Unit_24h](figures/Fig05_Conv_5Unit_24h.png)
-
-![Fig06_Conv_16Unit_24h](figures/Fig06_Conv_16Unit_24h.png)
-
-![Fig07_Conv_42Unit_24h](figures/Fig07_Conv_42Unit_24h.png)
-
-![Fig08_Sensitivity](figures/Fig08_Sensitivity.png)
-
-### Result files
-
-- [`results/CEC_Results_v9.xlsx`](results/CEC_Results_v9.xlsx)
-- [`results/Constraint_Check_v9.xlsx`](results/Constraint_Check_v9.xlsx)
-- [`results/ED_Results_v9.xlsx`](results/ED_Results_v9.xlsx)
+| Metric | Value |
+|---|---|
+| 42-unit single-period cost | USD 22,239.29/day |
+| Covered cases | 5-, 16-, 42-unit single-period and 24-hour |
+| Benchmarks | CEC2020 |
+| Balance repair | iterated until $\lt 10^{-4}$ MW |
+| Elite archive | 6 solutions |
+| Result file | [`results/CEC_Results_v9.xlsx`](results/CEC_Results_v9.xlsx) |
+| Result file | [`results/Constraint_Check_v9.xlsx`](results/Constraint_Check_v9.xlsx) |
+| Result file | [`results/ED_Results_v9.xlsx`](results/ED_Results_v9.xlsx) |
 
 
 ## Requirements

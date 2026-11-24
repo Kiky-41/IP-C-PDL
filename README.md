@@ -277,26 +277,23 @@ Friedman and ANOVA reject equal medians and equal means in all six scenarios, wi
 
 ### Multi-start composition, 42-unit, 20 runs per pool
 
-| Seed pool | Mean cost (IDR) | Std | Best | Runs |
-|---|---|---|---|---|
-| Lambda-iter only | 15,142,512.39 | 87,864.86 | 15,106,586.79 | 20 |
-| Interior-point only | 15,027,878.54 | 0.00 | 15,027,878.54 | 20 |
-| SQP only | 15,029,821.26 | 8,688.14 | 15,027,878.54 | 20 |
-| Random only | 15,066,400.86 | 136,991.47 | 15,027,878.54 | 20 |
-| Combined pool (default) | 15,027,878.55 | 0.02 | 15,027,878.54 | 20 |
+| Seed pool | Lambda-iter only | Interior-point only | SQP only | Random only | Combined pool (default) |
+|---|---|---|---|---|---|
+| Mean cost (IDR) | 15,142,512.39 | 15,027,878.54 | 15,029,821.26 | 15,066,400.86 | 15,027,878.55 |
+| Std | 87,864.86 | 0.00 | 8,688.14 | 136,991.47 | 0.02 |
+| Best | 15,106,586.79 | 15,027,878.54 | 15,027,878.54 | 15,027,878.54 | 15,027,878.54 |
+| Runs | 20 | 20 | 20 | 20 | 20 |
 
 Interior-point alone and the combined pool both reach 15,027,880 IDR with essentially zero spread, while lambda-iteration alone stops at 15,142,510 IDR and random starts at 15,066,400 IDR. The seed pool matters less than including an interior-point start: every pool that contains one ends at the same cost.
 
 ### Paired tests per scenario, Holm-corrected, 50 runs
 
-| Scenario | Wilcoxon flags of 9 | t-test flags of 9 | Smallest Wilcoxon p | Smallest t-test p |
-|---|---|---|---|---|
-| 5U | 7 | 8 | 1.54e-12 | 6.75e-258 |
-| 16U | 9 | 8 | 7.51e-10 | 6.33e-160 |
-| 42U | 9 | 9 | 7.55e-10 | 3.04e-43 |
-| 5U_24h | 9 | 9 | 7.56e-10 | 1.65e-40 |
-| 16U_24h | 8 | 8 | 7.56e-10 | 7.73e-64 |
-| 42U_24h | 9 | 9 | 7.56e-10 | 2.44e-79 |
+| Scenario | 5U | 16U | 42U | 5U_24h | 16U_24h | 42U_24h |
+|---|---|---|---|---|---|---|
+| Wilcoxon flags of 9 | 7 | 9 | 9 | 9 | 8 | 9 |
+| t-test flags of 9 | 8 | 8 | 9 | 9 | 8 | 9 |
+| Smallest Wilcoxon p | 1.54e-12 | 7.51e-10 | 7.55e-10 | 7.56e-10 | 7.56e-10 | 7.56e-10 |
+| Smallest t-test p | 6.75e-258 | 6.33e-160 | 3.04e-43 | 1.65e-40 | 7.73e-64 | 2.44e-79 |
 
 Every scenario separates IP-C-PDL from most of the field after Holm correction: seven of nine baselines on 5-unit, eight on 16-unit and 16-unit 24 hours, nine on 42-unit, 5-unit 24 hours and 42-unit 24 hours. The smallest p in any scenario is 7.5e-10 by Wilcoxon and 3.0e-43 by t-test, so the differences are not marginal even where the cost gap is a fraction of a percent.
 
@@ -313,12 +310,12 @@ Only the seed pool changes the answer. A single start costs 1.888% above the bes
 
 ### Chaotic map choice, 42-unit, 20 runs
 
-| Map | Mean cost (IDR) | Std | Best | Runs |
+| Map | Tent (default) | Logistic | Sine | Gaussian |
 |---|---|---|---|---|
-| Tent (default) | 15,027,878.58 | 0.027442 | 15,027,878.54 | 20 |
-| Logistic | 15,027,878.58 | 0.029781 | 15,027,878.54 | 20 |
-| Sine | 15,027,878.58 | 0.030290 | 15,027,878.54 | 20 |
-| Gaussian | 15,027,878.59 | 0.032126 | 15,027,878.54 | 20 |
+| Mean cost (IDR) | 15,027,878.58 | 15,027,878.58 | 15,027,878.58 | 15,027,878.59 |
+| Std | 0.027442 | 0.029781 | 0.030290 | 0.032126 |
+| Best | 15,027,878.54 | 15,027,878.54 | 15,027,878.54 | 15,027,878.54 |
+| Runs | 20 | 20 | 20 | 20 |
 
 All four maps reach the same best cost and their means differ by 0.01 IDR, so the map choice is cosmetic here. The Tent map has the smallest spread (std 0.0274 against 0.0321 for Gaussian), which is why it remains the default.
 

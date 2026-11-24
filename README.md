@@ -21,90 +21,132 @@ IP-C-PDL is a chaos-embedded trust-region interior-point method. A multi-start p
 
 $$\min_{\mathbf{P}}F(\mathbf{P})=\sum_{i=1}^{n}\left(a_iP_i^2+b_iP_i+c_i\right)$$
 
-$$\text{s.t.}\quad\mathbf{1}^{\top}\mathbf{P}=P_D,\qquad \mathbf{P}^{\min}\le\mathbf{P}\le\mathbf{P}^{\max}$$
+$$\text{s.t.}\quad\mathbf{1}^{\top}\mathbf{P}=P_D,\qquad \mathbf{P}^{\min}\le\mathbf{P}\le\mathbf{P}^{\max}.$$
 
-Multi-period form and ramp-coupled bounds:
+For 24 hours the objective is summed over periods and the ramp limits couple consecutive hours:
 
-$$\min_{\{P_{i,t}\}}\sum_{t=1}^{T}\sum_{i=1}^{n}f_i(P_{i,t}),\qquad -RD_i\le P_{i,t}-P_{i,t-1}\le RU_i$$
+$$\min_{\{P_{i,t}\}}\sum_{t=1}^{T}\sum_{i=1}^{n}f_i(P_{i,t}),\qquad -RD_i\le P_{i,t}-P_{i,t-1}\le RU_i.$$
 
-$$\tilde P_i^{\min}(t)=\max\!\left(P_i^{\min},P_{i,t-1}-RD_i\right),\qquad \tilde P_i^{\max}(t)=\min\!\left(P_i^{\max},P_{i,t-1}+RU_i\right)$$
+The ramp limits are folded into effective bounds:
+
+$$\tilde P_i^{\min}(t)=\max\!\left(P_i^{\min},P_{i,t-1}-RD_i\right),\qquad \tilde P_i^{\max}(t)=\min\!\left(P_i^{\max},P_{i,t-1}+RU_i\right).$$
+
+### Notation
+
+| Symbol | Meaning | Unit |
+|---|---|---|
+| $n$ | number of units | – |
+| $T$ | number of periods (24) | – |
+| $P_i,P_{i,t}$ | unit output | MW |
+| $a_i,b_i,c_i$ | cost coefficients | IDR/MW²h, IDR/MWh, IDR/h |
+| $P_D$ | demand | MW |
+| $RU_i,RD_i$ | ramp-up and ramp-down limits | MW/h |
+| $\Phi$ | penalised objective | IDR/h |
+| $\mu$ | penalty parameter | – |
+| $\varepsilon_k$ | balance error at iteration $k$ | MW |
+| $\mathbf{H}_k$ | Hessian approximation | – |
+| $\mathbf{s}_k,\mathbf{y}_k$ | step and gradient difference | MW, IDR/MWh |
+| $\mathbf{p}_N,\mathbf{p}_C$ | Newton and Cauchy steps | MW |
+| $\Delta_k$ | trust-region radius | MW |
+| $\rho_k$ | predicted/actual reduction ratio | – |
+| $\alpha_k$ | Armijo step length | – |
+| $c_p$ | tent-map perturbation probability | – |
+| $\mathrm{stall}$ | consecutive non-improving iterations | – |
 
 ### Penalty subproblem
 
-$$\Phi(\mathbf{P};\mu)=F(\mathbf{P})+\mu\left(\sum_{i=1}^{n}P_i-P_D\right)^2$$
+The equality constraint is moved into the objective:
 
-$$\mu_k=\min\!\left(\mu_0\max\!\left(1,\frac{10^3}{\max(\varepsilon_k,10^{-3})}\right),10^{10}\right),\qquad \mu_0=10^6,\quad \varepsilon_k=\left|\mathbf{1}^{\top}\mathbf{P}_k-P_D\right|$$
+$$\Phi(\mathbf{P};\mu)=F(\mathbf{P})+\mu\left(\sum_{i=1}^{n}P_i-P_D\right)^2.$$
 
-Exact balance repair, with $d=\mathbf{1}^{\top}\mathbf{P}-P_D$:
+The penalty is tightened as the balance error shrinks:
+
+$$\mu_k=\min\!\left(\mu_0\max\!\left(1,\frac{10^3}{\max(\varepsilon_k,10^{-3})}\right),10^{10}\right),\qquad \mu_0=10^6,\quad \varepsilon_k=\left|\mathbf{1}^{\top}\mathbf{P}_k-P_D\right|.$$
+
+A small balance error therefore receives a large penalty, while the cap at $10^{10}$ prevents the Hessian from becoming numerically singular.
+
+Exact balance repair is applied after clipping. With $d=\mathbf{1}^{\top}\mathbf{P}-P_D$:
 
 $$P_i\leftarrow
 \begin{cases}
-P_i-\dfrac{P_i-l_i}{\sum_j(P_j-l_j)}d, & d>0\\[8pt]
-P_i+\dfrac{u_i-P_i}{\sum_j(u_j-P_j)}|d|, & d<0
+P_i-\dfrac{P_i-l_i}{\sum_j(P_j-l_j)}d, & d>0,\\[8pt]
+P_i+\dfrac{u_i-P_i}{\sum_j(u_j-P_j)}|d|, & d<0.
 \end{cases}$$
 
-iterated up to 200 times until $|d|<10^{-4}$ MW, then re-clipped.
+The correction is proportional to the remaining headroom, so units near a limit move less. The repair is iterated up to 200 times until $|d|<10^{-4}$ MW, then re-clipped.
 
 ### Hessian approximation
 
-With $\mathbf{s}_k=\mathbf{x}_{k+1}-\mathbf{x}_k$, $\mathbf{y}_k=\nabla\Phi_{k+1}-\nabla\Phi_k$, use BFGS when $\mathbf{s}_k^{\top}\mathbf{y}_k>10^{-10}$:
+With $\mathbf{s}_k=\mathbf{x}_{k+1}-\mathbf{x}_k$ and $\mathbf{y}_k=\nabla\Phi_{k+1}-\nabla\Phi_k$, the BFGS update is used when $\mathbf{s}_k^{\top}\mathbf{y}_k>10^{-10}$:
 
-$$\mathbf{H}_{k+1}=\left(\mathbf{I}-\rho_k\mathbf{s}_k\mathbf{y}_k^{\top}\right)\mathbf{H}_k\left(\mathbf{I}-\rho_k\mathbf{y}_k\mathbf{s}_k^{\top}\right)+\rho_k\mathbf{s}_k\mathbf{s}_k^{\top},\qquad \rho_k=\frac{1}{\mathbf{s}_k^{\top}\mathbf{y}_k}$$
+$$\mathbf{H}_{k+1}=\left(\mathbf{I}-\rho_k\mathbf{s}_k\mathbf{y}_k^{\top}\right)\mathbf{H}_k\left(\mathbf{I}-\rho_k\mathbf{y}_k\mathbf{s}_k^{\top}\right)+\rho_k\mathbf{s}_k\mathbf{s}_k^{\top},\qquad \rho_k=\frac{1}{\mathbf{s}_k^{\top}\mathbf{y}_k}.$$
 
-otherwise SR1:
+Otherwise the SR1 fallback is used:
 
-$$\mathbf{H}_{k+1}=\mathbf{H}_k+\frac{\mathbf{r}_k\mathbf{r}_k^{\top}}{\mathbf{r}_k^{\top}\mathbf{y}_k},\qquad \mathbf{r}_k=\mathbf{s}_k-\mathbf{H}_k\mathbf{y}_k$$
+$$\mathbf{H}_{k+1}=\mathbf{H}_k+\frac{\mathbf{r}_k\mathbf{r}_k^{\top}}{\mathbf{r}_k^{\top}\mathbf{y}_k},\qquad \mathbf{r}_k=\mathbf{s}_k-\mathbf{H}_k\mathbf{y}_k.$$
 
 An update is rejected, and $\mathbf{H}_{k+1}\leftarrow\mathbf{I}$, when $\operatorname{rcond}(\mathbf{H}_{k+1})\le10^{-14}$.
 
 ### Powell's dog-leg step
 
-Scaled gradient:
+The gradient is scaled so units with different ranges contribute comparably:
 
-$$\boldsymbol{\sigma}=\max(\mathbf{u}-\mathbf{l},\mathbf{1}),\qquad \mathbf{g}_s=\frac{\mathbf{g}_k/\boldsymbol{\sigma}}{\max\left(\|\mathbf{g}_k\|/\|\boldsymbol{\sigma}\|,10^{-12}\right)}$$
+$$\boldsymbol{\sigma}=\max(\mathbf{u}-\mathbf{l},\mathbf{1}),\qquad \mathbf{g}_s=\frac{\mathbf{g}_k/\boldsymbol{\sigma}}{\max\left(\|\mathbf{g}_k\|/\|\boldsymbol{\sigma}\|,10^{-12}\right)}.$$
 
-Newton and Cauchy steps:
+The quasi-Newton and Cauchy steps are
 
-$$\mathbf{p}_N=-\mathbf{H}_k\mathbf{g}_s,\qquad \mathbf{p}_C=-\tau_c\frac{\Delta_k}{\|\mathbf{g}_s\|}\mathbf{g}_s,\qquad \tau_c=\min\!\left(\frac{\|\mathbf{g}_s\|^3}{\Delta_k\,\mathbf{g}_s^{\top}\mathbf{H}_k\mathbf{g}_s+10^{-12}},1\right)$$
+$$\mathbf{p}_N=-\mathbf{H}_k\mathbf{g}_s,\qquad \mathbf{p}_C=-\tau_c\frac{\Delta_k}{\|\mathbf{g}_s\|}\mathbf{g}_s,\qquad \tau_c=\min\!\left(\frac{\|\mathbf{g}_s\|^3}{\Delta_k\,\mathbf{g}_s^{\top}\mathbf{H}_k\mathbf{g}_s+10^{-12}},1\right).$$
+
+The trial step selects among three cases:
 
 $$\mathbf{p}_k=
 \begin{cases}
-\mathbf{p}_N, & \|\mathbf{p}_N\|\le\Delta_k\\[4pt]
-\Delta_k\dfrac{-\mathbf{g}_s}{\|\mathbf{g}_s\|}, & \|\mathbf{p}_C\|\ge\Delta_k\\[8pt]
-\mathbf{p}_C+\tau^*(\mathbf{p}_N-\mathbf{p}_C), & \text{otherwise}
+\mathbf{p}_N, & \|\mathbf{p}_N\|\le\Delta_k,\\[4pt]
+\Delta_k\dfrac{-\mathbf{g}_s}{\|\mathbf{g}_s\|}, & \|\mathbf{p}_C\|\ge\Delta_k,\\[8pt]
+\mathbf{p}_C+\tau^{*}(\mathbf{p}_N-\mathbf{p}_C), & \text{otherwise},
 \end{cases}$$
 
-where $\tau^*$ is the positive root of
+where $\tau^{*}$ is the positive root of
 
-$$\underbrace{\|\mathbf{p}_N-\mathbf{p}_C\|^2}_{a_q}\tau^2+\underbrace{2\mathbf{p}_C^{\top}(\mathbf{p}_N-\mathbf{p}_C)}_{b_q}\tau+\underbrace{\|\mathbf{p}_C\|^2-\Delta_k^2}_{c_q}=0$$
+$$\underbrace{\|\mathbf{p}_N-\mathbf{p}_C\|^2}_{a_q}\tau^2+\underbrace{2\mathbf{p}_C^{\top}(\mathbf{p}_N-\mathbf{p}_C)}_{b_q}\tau+\underbrace{\|\mathbf{p}_C\|^2-\Delta_k^2}_{c_q}=0.$$
 
-Armijo step ($10^{-4}$ sufficient decrease), trust-region ratio and radius update:
+The first case takes the full Newton step inside the trust region; the second follows the steepest-descent direction to the boundary when even the Cauchy step is too long; the third interpolates along the dog-leg segment to the trust-region boundary.
+
+An Armijo line search finds $\alpha_k$ with $10^{-4}$ sufficient decrease:
+
+$$\Phi(\mathbf{x}_k+\alpha_k\mathbf{p}_k)\le\Phi(\mathbf{x}_k)+10^{-4}\alpha_k\mathbf{g}_s^{\top}\mathbf{p}_k.$$
+
+The trust-region ratio and radius update are
 
 $$\rho_k=\frac{\Phi(\mathbf{x}_k)-\Phi(\mathbf{x}_k+\alpha_k\mathbf{p}_k)}{-\mathbf{g}_s^{\top}(\alpha_k\mathbf{p}_k)},\qquad
 \Delta_{k+1}=
 \begin{cases}
-\max(\Delta_k/2,\ 10^{-8}), & \rho_k<0.25\\
-\min(2\Delta_k,\ 500), & \rho_k>0.75\\
-\Delta_k, & \text{otherwise}
+\max(\Delta_k/2,\ 10^{-8}), & \rho_k<0.25,\\
+\min(2\Delta_k,\ 500), & \rho_k>0.75,\\
+\Delta_k, & \text{otherwise}.
 \end{cases}$$
+
+A ratio below 0.25 means the model over-predicted, so the radius shrinks; a ratio above 0.75 means the model is trustworthy, so the radius grows.
 
 ### Tent-map perturbation
 
 $$s_i^{(k+1)}=
 \begin{cases}
-2s_i^{(k)}, & s_i^{(k)}<0.5\\
-2\left(1-s_i^{(k)}\right), & s_i^{(k)}\ge0.5
+2s_i^{(k)}, & s_i^{(k)}<0.5,\\
+2\left(1-s_i^{(k)}\right), & s_i^{(k)}\ge0.5,
 \end{cases}
 \qquad
-c_p(k)=\min\left(c_{p0}+0.004\,\text{stall},\ 0.55\right)$$
+c_p(k)=\min\left(c_{p0}+0.004\,\mathrm{stall},\ 0.55\right).$$
 
-$$\Delta_c=\Delta_k\min\!\left(0.25+\frac{\text{stall}}{120},0.9\right),\qquad \mathbf{x}_k\leftarrow\mathbf{x}_k+\Delta_c\frac{\mathbf{s}^{(k)}-0.5}{\left\|\mathbf{s}^{(k)}-0.5\right\|}\ \text{with probability }c_p(k)$$
+$$\Delta_c=\Delta_k\min\!\left(0.25+\frac{\mathrm{stall}}{120},0.9\right),\qquad \mathbf{x}_k\leftarrow\mathbf{x}_k+\Delta_c\frac{\mathbf{s}^{(k)}-0.5}{\left\|\mathbf{s}^{(k)}-0.5\right\|}\ \text{with probability }c_p(k).$$
 
-An elite archive of six solutions is kept; every $e_i=\max(20-\lfloor\text{stall}/10\rfloor,10)$ stalled iterations an SQP refinement is applied, and every 50 stalls the run restarts from the best elite member plus Gaussian noise.
+The tent map is deterministic and aperiodic, so the perturbation is reproducible. Its probability and magnitude rise with the stall counter, which lets the search leave a basin only after the deterministic step has stopped improving.
+
+An elite archive of six solutions is kept; every $e_i=\max(20-\lfloor\mathrm{stall}/10\rfloor,10)$ stalled iterations an SQP refinement is applied, and every 50 stalls the run restarts from the best elite member plus Gaussian noise.
 
 ### Reported result
 
-42-unit single-period: USD 22,239.29/day; the same framework covers 5-, 16- and 42-unit single-period and 24-hour cases, plus CEC2020 benchmarks.
+42-unit single-period: USD 22,239.29/day. The same framework covers 5-, 16- and 42-unit single-period and 24-hour cases, plus CEC2020 benchmarks.
 
 ## Contents
 

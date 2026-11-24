@@ -33,25 +33,17 @@ $$\tilde P_i^{\min}(t)=\max\left(P_i^{\min},P_{i,t-1}-RD_i\right),\qquad \tilde 
 
 ### Notation
 
-| Symbol | Meaning | Unit |
-|---|---|---|
-| $n$ | number of units | – |
-| $T$ | number of periods (24) | – |
-| $P_i,P_{i,t}$ | unit output | MW |
-| $a_i,b_i,c_i$ | cost coefficients | IDR/MW²h, IDR/MWh, IDR/h |
-| $P_D$ | demand | MW |
-| $RU_i,RD_i$ | ramp-up and ramp-down limits | MW/h |
-| $\Phi$ | penalised objective | IDR/h |
-| $\mu$ | penalty parameter | – |
-| $\varepsilon_k$ | balance error at iteration $k$ | MW |
-| $\mathbf{H}_k$ | Hessian approximation | – |
-| $\mathbf{s}_k,\mathbf{y}_k$ | step and gradient difference | MW, IDR/MWh |
-| $\mathbf{p}_N,\mathbf{p}_C$ | Newton and Cauchy steps | MW |
-| $\Delta_k$ | trust-region radius | MW |
-| $\rho_k$ | predicted/actual reduction ratio | – |
-| $\alpha_k$ | Armijo step length | – |
-| $c_p$ | tent-map perturbation probability | – |
-| $\mathrm{stall}$ | consecutive non-improving iterations | – |
+| Symbol | Meaning | Symbol | Meaning |
+|---|---|---|---|
+| $n$ | number of units | $\mathbf{H}_k$ | Hessian approximation |
+| $T$ | number of periods (24) | $\mathbf{s}_k,\mathbf{y}_k$ | step and gradient difference (MW, IDR/MWh) |
+| $P_i,P_{i,t}$ | unit output (MW) | $\mathbf{p}_N,\mathbf{p}_C$ | Newton and Cauchy steps (MW) |
+| $a_i,b_i,c_i$ | cost coefficients (IDR/MW²h, IDR/MWh, IDR/h) | $\Delta_k$ | trust-region radius (MW) |
+| $P_D$ | demand (MW) | $\rho_k$ | predicted/actual reduction ratio |
+| $RU_i,RD_i$ | ramp-up and ramp-down limits (MW/h) | $\alpha_k$ | Armijo step length |
+| $\Phi$ | penalised objective (IDR/h) | $c_p$ | tent-map perturbation probability |
+| $\mu$ | penalty parameter | $\mathrm{stall}$ | consecutive non-improving iterations |
+| $\varepsilon_k$ | balance error at iteration $k$ (MW) |  |  |
 
 ### Penalty subproblem
 

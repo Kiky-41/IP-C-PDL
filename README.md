@@ -85,7 +85,7 @@ Otherwise the SR1 fallback is used:
 
 $$\mathbf{H}_{k+1}=\mathbf{H}_k+\frac{\mathbf{r}_k\mathbf{r}_k^{\top}}{\mathbf{r}_k^{\top}\mathbf{y}_k},\qquad \mathbf{r}_k=\mathbf{s}_k-\mathbf{H}_k\mathbf{y}_k.$$
 
-An update is rejected, and $\mathbf{H}_{k+1}\leftarrow\mathbf{I}$, when $\operatorname{rcond}(\mathbf{H}_{k+1})\le10^{-14}$.
+An update is rejected, and $\mathbf{H}_{k+1}\leftarrow\mathbf{I}$, when $\mathrm{rcond}(\mathbf{H}_{k+1})\le10^{-14}$.
 
 ### Powell's dog-leg step
 
@@ -194,6 +194,34 @@ Input data is **not included**. Place files in `data/` (notebooks) or next to th
 | `power_demand16u.xlsx` | Sheet1: `load` |
 | `power_demand42u.xlsx` | Sheet1: `load` |
 | `power_demand5u.xlsx` | Sheet1: `load` |
+
+
+## Results
+
+### Figures
+
+![Fig01_CEC_Conv](figures/Fig01_CEC_Conv.png)
+
+![Fig02_Conv_5Unit](figures/Fig02_Conv_5Unit.png)
+
+![Fig03_Conv_16Unit](figures/Fig03_Conv_16Unit.png)
+
+![Fig04_Conv_42Unit](figures/Fig04_Conv_42Unit.png)
+
+![Fig05_Conv_5Unit_24h](figures/Fig05_Conv_5Unit_24h.png)
+
+![Fig06_Conv_16Unit_24h](figures/Fig06_Conv_16Unit_24h.png)
+
+![Fig07_Conv_42Unit_24h](figures/Fig07_Conv_42Unit_24h.png)
+
+![Fig08_Sensitivity](figures/Fig08_Sensitivity.png)
+
+### Result files
+
+- [`results/CEC_Results_v9.xlsx`](results/CEC_Results_v9.xlsx)
+- [`results/Constraint_Check_v9.xlsx`](results/Constraint_Check_v9.xlsx)
+- [`results/ED_Results_v9.xlsx`](results/ED_Results_v9.xlsx)
+
 
 ## Requirements
 

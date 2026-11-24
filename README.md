@@ -343,11 +343,7 @@ Tightening rcond from 1e-10 to 1e-14 drops the curvature-update reject rate from
 
 ### Result workbooks
 
-| File | Content |
-|---|---|
-| [`results/CEC_Results_v9.xlsx`](results/CEC_Results_v9.xlsx) | raw output |
-| [`results/Constraint_Check_v9.xlsx`](results/Constraint_Check_v9.xlsx) | raw output |
-| [`results/ED_Results_v9.xlsx`](results/ED_Results_v9.xlsx) | raw output |
+Raw solver output: [`results/CEC_Results_v9.xlsx`](results/CEC_Results_v9.xlsx), [`results/Constraint_Check_v9.xlsx`](results/Constraint_Check_v9.xlsx), [`results/ED_Results_v9.xlsx`](results/ED_Results_v9.xlsx).
 
 The workbooks hold the raw solver output behind the tables above: per-unit schedules, per-hour costs, constraint checks and run statistics.
 

@@ -69,15 +69,15 @@ Exact balance repair is applied after clipping. With $d=\mathbf{1}^{\top}\mathbf
 
 $$P_i\leftarrow
 \begin{cases}
-P_i-\dfrac{P_i-l_i}{\sum_j(P_j-l_j)}d, & d>0,\\
-P_i+\dfrac{u_i-P_i}{\sum_j(u_j-P_j)}|d|, & d<0.
+P_i-\dfrac{P_i-l_i}{\sum_j(P_j-l_j)}d, & d\gt0,\\
+P_i+\dfrac{u_i-P_i}{\sum_j(u_j-P_j)}|d|, & d\lt0.
 \end{cases}$$
 
-The correction is proportional to the remaining headroom, so units near a limit move less. The repair is iterated up to 200 times until $|d|<10^{-4}$ MW, then re-clipped.
+The correction is proportional to the remaining headroom, so units near a limit move less. The repair is iterated up to 200 times until $|d|\lt10^{-4}$ MW, then re-clipped.
 
 ### Hessian approximation
 
-With $\mathbf{s}_k=\mathbf{x}_{k+1}-\mathbf{x}_k$ and $\mathbf{y}_k=\nabla\Phi_{k+1}-\nabla\Phi_k$, the BFGS update is used when $\mathbf{s}_k^{\top}\mathbf{y}_k>10^{-10}$:
+With $\mathbf{s}_k=\mathbf{x}_{k+1}-\mathbf{x}_k$ and $\mathbf{y}_k=\nabla\Phi_{k+1}-\nabla\Phi_k$, the BFGS update is used when $\mathbf{s}_k^{\top}\mathbf{y}_k\gt10^{-10}$:
 
 $$\mathbf{H}_{k+1}=\left(\mathbf{I}-\rho_k\mathbf{s}_k\mathbf{y}_k^{\top}\right)\mathbf{H}_k\left(\mathbf{I}-\rho_k\mathbf{y}_k\mathbf{s}_k^{\top}\right)+\rho_k\mathbf{s}_k\mathbf{s}_k^{\top},\qquad \rho_k=\frac{1}{\mathbf{s}_k^{\top}\mathbf{y}_k}.$$
 
@@ -121,8 +121,8 @@ The trust-region ratio and radius update are
 $$\rho_k=\frac{\Phi(\mathbf{x}_k)-\Phi(\mathbf{x}_k+\alpha_k\mathbf{p}_k)}{-\mathbf{g}_s^{\top}(\alpha_k\mathbf{p}_k)},\qquad
 \Delta_{k+1}=
 \begin{cases}
-\max(\Delta_k/2,~10^{-8}), & \rho_k<0.25,\\
-\min(2\Delta_k,~500), & \rho_k>0.75,\\
+\max(\Delta_k/2,~10^{-8}), & \rho_k\lt0.25,\\
+\min(2\Delta_k,~500), & \rho_k\gt0.75,\\
 \Delta_k, & \text{otherwise}.
 \end{cases}$$
 
@@ -132,7 +132,7 @@ A ratio below 0.25 means the model over-predicted, so the radius shrinks; a rati
 
 $$s_i^{(k+1)}=
 \begin{cases}
-2s_i^{(k)}, & s_i^{(k)}<0.5,\\
+2s_i^{(k)}, & s_i^{(k)}\lt0.5,\\
 2\left(1-s_i^{(k)}\right), & s_i^{(k)}\ge0.5,
 \end{cases}
 \qquad

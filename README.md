@@ -325,6 +325,73 @@ Friedman and ANOVA reject equal medians and equal means in all six scenarios, wi
 
 Interior-point alone and the combined pool both reach 15,027,880 IDR with essentially zero spread, while lambda-iteration alone stops at 15,142,510 IDR and random starts at 15,066,400 IDR. The seed pool matters less than including an interior-point start: every pool that contains one ends at the same cost.
 
+### Paired tests per scenario, Holm-corrected, 50 runs
+
+| Scenario | Wilcoxon flags of 9 | t-test flags of 9 | Smallest Wilcoxon p | Smallest t-test p |
+|---|---|---|---|---|
+| 5U | 7 | 8 | 1.54e-12 | 6.75e-258 |
+| 16U | 9 | 8 | 7.51e-10 | 6.33e-160 |
+| 42U | 9 | 9 | 7.55e-10 | 3.04e-43 |
+| 5U_24h | 9 | 9 | 7.56e-10 | 1.65e-40 |
+| 16U_24h | 8 | 8 | 7.56e-10 | 7.73e-64 |
+| 42U_24h | 9 | 9 | 7.56e-10 | 2.44e-79 |
+
+Every scenario separates IP-C-PDL from most of the field after Holm correction: seven of nine baselines on 5-unit, eight on 16-unit and 16-unit 24 hours, nine on 42-unit, 5-unit 24 hours and 42-unit 24 hours. The smallest p in any scenario is 7.5e-10 by Wilcoxon and 3.0e-43 by t-test, so the differences are not marginal even where the cost gap is a fraction of a percent.
+
+### Sensitivity, 20 runs per setting
+
+| Factor | Level | Mean cost (IDR) | Std | Best | Above best (%) |
+|---|---|---|---|---|---|
+| cp0 (Chaos Probability) | 0.050 | 15,027,878.56 | 0.0387 | 15,027,878.54 | 0.000 |
+| cp0 (Chaos Probability) | 0.100 | 15,027,878.57 | 0.0387 | 15,027,878.54 | 0.000 |
+| cp0 (Chaos Probability) | 0.200 | 15,027,878.56 | 0.0338 | 15,027,878.54 | 0.000 |
+| cp0 (Chaos Probability) | 0.350 | 15,027,878.54 | 0.0000 | 15,027,878.54 | 0.000 |
+| cp0 (Chaos Probability) | 0.500 | 15,027,878.54 | 0.0000 | 15,027,878.54 | 0.000 |
+| MAX_IT (Max Iterations) | 100 | 15,027,878.59 | 0.0346 | 15,027,878.54 | 0.000 |
+| MAX_IT (Max Iterations) | 200 | 15,027,878.57 | 0.0338 | 15,027,878.54 | 0.000 |
+| MAX_IT (Max Iterations) | 300 | 15,027,878.56 | 0.0312 | 15,027,878.54 | 0.000 |
+| MAX_IT (Max Iterations) | 400 | 15,027,878.55 | 0.0255 | 15,027,878.54 | 0.000 |
+| MAX_IT (Max Iterations) | 500 | 15,027,878.55 | 0.0208 | 15,027,878.54 | 0.000 |
+| N_STARTS (Pool Size) | 1 | 15,311,605.49 | 105,172.3713 | 15,106,586.79 | 1.888 |
+| N_STARTS (Pool Size) | 2 | 15,027,878.56 | 0.0290 | 15,027,878.54 | 0.000 |
+| N_STARTS (Pool Size) | 4 | 15,027,878.55 | 0.0232 | 15,027,878.54 | 0.000 |
+| N_STARTS (Pool Size) | 6 | 15,027,878.55 | 0.0232 | 15,027,878.54 | 0.000 |
+| N_STARTS (Pool Size) | 8 | 15,027,878.55 | 0.0223 | 15,027,878.54 | 0.000 |
+| delta0_frac (Trust-Region Radius Fraction) | 0.020 | 15,027,878.54 | 0.0190 | 15,027,878.54 | 0.000 |
+| delta0_frac (Trust-Region Radius Fraction) | 0.050 | 15,027,878.55 | 0.0304 | 15,027,878.54 | 0.000 |
+| delta0_frac (Trust-Region Radius Fraction) | 0.100 | 15,027,878.54 | 0.0103 | 15,027,878.54 | 0.000 |
+| delta0_frac (Trust-Region Radius Fraction) | 0.200 | 15,027,878.54 | 0.0170 | 15,027,878.54 | 0.000 |
+| delta0_frac (Trust-Region Radius Fraction) | 0.400 | 15,027,878.54 | 0.0178 | 15,027,878.54 | 0.000 |
+| mu0 (Penalty Coefficient) | 10,000 | 15,027,878.55 | 0.0242 | 15,027,878.54 | 0.000 |
+| mu0 (Penalty Coefficient) | 100,000 | 15,027,878.55 | 0.0242 | 15,027,878.54 | 0.000 |
+| mu0 (Penalty Coefficient) | 1,000,000 | 15,027,878.55 | 0.0242 | 15,027,878.54 | 0.000 |
+| mu0 (Penalty Coefficient) | 10,000,000 | 15,027,878.55 | 0.0242 | 15,027,878.54 | 0.000 |
+| mu0 (Penalty Coefficient) | 100,000,000 | 15,027,878.55 | 0.0242 | 15,027,878.54 | 0.000 |
+
+Only the seed pool changes the answer. A single start costs 1.888% above the best run (15,311,605.49 against 15,027,878.54 IDR); two or more starts already reach the optimum to within 0.01 IDR. Chaos probability, iteration cap, trust-region radius and penalty weight all move the mean by less than 0.05 IDR, which means the interior-point core, not the tuning, carries the result.
+
+### Chaotic map choice, 42-unit, 20 runs
+
+| Map | Mean cost (IDR) | Std | Best | Runs |
+|---|---|---|---|---|
+| Tent (default) | 15,027,878.58 | 0.027442 | 15,027,878.54 | 20 |
+| Logistic | 15,027,878.58 | 0.029781 | 15,027,878.54 | 20 |
+| Sine | 15,027,878.58 | 0.030290 | 15,027,878.54 | 20 |
+| Gaussian | 15,027,878.59 | 0.032126 | 15,027,878.54 | 20 |
+
+All four maps reach the same best cost and their means differ by 0.01 IDR, so the map choice is cosmetic here. The Tent map has the smallest spread (std 0.0274 against 0.0321 for Gaussian), which is why it remains the default.
+
+### SR1/BFGS curvature threshold, 42-unit, 20 runs
+
+| rcond threshold | Mean cost (IDR) | Std | Curvature reject rate |
+|---|---|---|---|
+| 1e-10 | 15,027,878.58 | 0.037363 | 1.000000 |
+| 1e-12 | 15,027,878.58 | 0.037363 | 0.999791 |
+| 1e-14 | 15,027,878.57 | 0.025360 | 0.420259 |
+| 1e-16 | 15,027,878.57 | 0.025360 | 0.365476 |
+
+Tightening rcond from 1e-10 to 1e-14 drops the curvature-update reject rate from 100% to 42% and trims the mean by 0.01 IDR; moving to 1e-16 gains nothing further. The threshold mainly controls how often the Hessian update is skipped, not the final cost.
+
 ### Result workbooks
 
 | File | Content |

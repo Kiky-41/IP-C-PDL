@@ -69,7 +69,7 @@ The correction is proportional to the remaining headroom, so units near a limit 
 
 ### Hessian approximation
 
-With $\mathbf{s}_k=\mathbf{x}_{k+1}-\mathbf{x}_k$ and $\mathbf{y}_k=\nabla\Phi_{k+1}-\nabla\Phi_k$, the BFGS update is used when $\mathbf{s}_k^{\top}\mathbf{y}_k\gt10^{-10}$:
+With $\mathbf s_k=\mathbf x_{k+1}-\mathbf x_k$ and $\mathbf y_k=\nabla\Phi_{k+1}-\nabla\Phi_k$, the BFGS update is used when $\mathbf s_k^{\top}\mathbf y_k\gt10^{-10}$:
 
 $$\mathbf{H}_{k+1}=\left(\mathbf{I}-\rho_k\mathbf{s}_k\mathbf{y}_k^{\top}\right)\mathbf{H}_k\left(\mathbf{I}-\rho_k\mathbf{y}_k\mathbf{s}_k^{\top}\right)+\rho_k\mathbf{s}_k\mathbf{s}_k^{\top},\qquad \rho_k=\frac{1}{\mathbf{s}_k^{\top}\mathbf{y}_k}.$$
 
@@ -77,7 +77,7 @@ Otherwise the SR1 fallback is used:
 
 $$\mathbf{H}_{k+1}=\mathbf{H}_k+\frac{\mathbf{r}_k\mathbf{r}_k^{\top}}{\mathbf{r}_k^{\top}\mathbf{y}_k},\qquad \mathbf{r}_k=\mathbf{s}_k-\mathbf{H}_k\mathbf{y}_k.$$
 
-An update is rejected, and $\mathbf{H}_{k+1}\leftarrow\mathbf{I}$, when $\mathrm{rcond}(\mathbf{H}_{k+1})\le10^{-14}$.
+An update is rejected, and $\mathbf H_{k+1}\leftarrow\mathbf I$, when $\mathrm{rcond}(\mathbf H_{k+1})\le10^{-14}$.
 
 ### Powell's dog-leg step
 

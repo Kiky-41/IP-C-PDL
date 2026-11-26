@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code or results, you must cite the paper below (CC BY 4.0 attribution requirement)."
-title: "IP-C-PDL: IP-C-PDL: A chaos-embedded trust-region interior-point framework for constrained economic dispatch in large-scale power systems"
+title: "IP-C-PDL: A chaos-embedded trust-region interior-point framework for constrained economic dispatch in large-scale power systems"
 type: software
 license: CC-BY-4.0
 repository-code: "https://github.com/Kiky-41/IP-C-PDL"
@@ -21,6 +21,10 @@ preferred-citation:
       given-names: "Rifki Rahman Nur"
     - family-names: "Yustika"
       given-names: "Lindiasari Martha"
-  journal: "An International Journal of Optimization and Control: Theories & Applications  (IJOCTA)"
+  journal: "An International Journal of Optimization and Control: Theories & Applications (IJOCTA)"
+  volume: "16"
+  issue: "6"
+  start: "026310188"
   year: 2026
   doi: 10.36922/IJOCTA026310188
+  url: "https://doi.org/10.36922/IJOCTA026310188"
